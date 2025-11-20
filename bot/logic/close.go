@@ -252,7 +252,13 @@ func sendCloseEmbed(ctx context.Context, cmd registry.CommandContext, errorConte
 		componentBuilders := [][]CloseEmbedElement{
 			{
 				TranscriptLinkElement(settings.StoreTranscripts),
-				ThreadLinkElement(ticket.IsThread && ticket.ChannelId != nil),
+				var threadElem *CloseEmbedElement = nil
+			if ticket.IsThread && ticket.ChannelId != nil {
+   			 elem := ThreadLinkElement(true)
+    			if elem.CustomID != "" {
+        		threadElem = &elem
+    			}
+				}
 			},
 		}
 
