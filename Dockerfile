@@ -1,5 +1,5 @@
 # Build container
-FROM golang:1.17 AS builder
+FROM golang:1.21 AS builder
 
 RUN go version
 
@@ -37,4 +37,5 @@ WORKDIR /srv/worker
 
 
 CMD ["/srv/worker/main"]
+
 
