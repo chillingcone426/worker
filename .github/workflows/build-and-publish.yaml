@@ -52,7 +52,9 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_NAME }}
           labels: ${{ steps.meta.outputs.labels }}
+          progress: plain
 
       - name: Log image name
         run: |
           echo "Image URI: ${IMAGE_NAME}"
+
