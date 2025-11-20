@@ -255,34 +255,45 @@ func sendCloseEmbed(ctx context.Context, cmd registry.CommandContext, errorConte
 
     if ticket.IsThread && ticket.ChannelId != nil {
         threadElem := ThreadLinkElement(true)
-        if threadElem.CustomID != "" {
-            builders = append(builders, threadElem)
-        }
+        builders = append(builders, threadElem)
     }
 
     componentBuilders := [][]CloseEmbedElement{
         builders,
     }
 
+    closeEmbed, closeComponents := BuildCloseEmbed(
+        ctx,
+        cmd.Worker(),
+        ticket,
+        member.User.Id,
+        reason,
+        nil,
+        componentBuilders,
+    )
 
-		closeEmbed, closeComponents := BuildCloseEmbed(ctx, cmd.Worker(), ticket, member.User.Id, reason, nil, componentBuilders)
+    data := rest.CreateMessageData{
+        Embeds:     utils.Slice(closeEmbed),
+        Components: closeComponents,
+    }
 
-		data := rest.CreateMessageData{
-			Embeds:     utils.Slice(closeEmbed),
-			Components: closeComponents,
-		}
+    msg, err := cmd.Worker().CreateMessageComplex(*archiveChannelId, data)
+    if err != nil {
+        sentry.ErrorWithContext(err, errorContext)
+    } else {
+        if err := dbclient.Client.ArchiveMessages.Set(
+            ctx,
+            ticket.GuildId,
+            ticket.Id,
+            *archiveChannelId,
+            msg.Id,
+        ); err != nil {
+            cmd.HandleError(err)
+            return
+        }
+    }
+}
 
-		msg, err := cmd.Worker().CreateMessageComplex(*archiveChannelId, data)
-		if err != nil {
-			sentry.ErrorWithContext(err, errorContext)
-		} else {
-			// Add message to archive
-			if err := dbclient.Client.ArchiveMessages.Set(ctx, ticket.GuildId, ticket.Id, *archiveChannelId, msg.Id); err != nil {
-				cmd.HandleError(err)
-				return
-			}
-		}
-	}
 
 	// Notify user and send logs in DMs
 	// This mutates state!
