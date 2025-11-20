@@ -8,6 +8,7 @@ import (
 	"github.com/TicketsBot/common/permission"
 	"github.com/TicketsBot/common/sentry"
 	"github.com/TicketsBot/database"
+	"github.com/rxdn/gdl/objects/channel/component"
 	"github.com/TicketsBot/worker/bot/command/registry"
 	"github.com/TicketsBot/worker/bot/customisation"
 	"github.com/TicketsBot/worker/bot/dbclient"
