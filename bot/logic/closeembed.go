@@ -88,23 +88,23 @@ func ViewFeedbackElement(condition bool) CloseEmbedElement {
 
 func FeedbackRowElement(condition bool) CloseEmbedElement {
     if !condition {
-        // Return NO BUTTONS
         return NoopElement()
     }
 
     return func(worker *worker.Context, ticket database.Ticket) []component.Component {
-        // Always return a VALID custom_id
+        // Always valid custom_id
         customId := fmt.Sprintf("feedback:%d", ticket.Id)
 
         return []component.Component{
             component.BuildButton(component.Button{
                 Label:    "Rate Ticket",
                 Style:    component.ButtonStylePrimary,
-                CustomId: utils.Ptr(customId),
+                CustomId: customId,  // <-- FIXED
             }),
         }
     }
 }
+
 
 
 func BuildCloseEmbed(
