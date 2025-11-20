@@ -14,11 +14,12 @@ RUN set -Eeux && \
     go mod download && \
     go mod verify
 
-RUN GOOS=linux GOARCH=amd64 \
+RUN set -ex && GOOS=linux GOARCH=amd64 \
     go build \
     -tags=jsoniter \
     -trimpath \
     -o main cmd/worker/main.go
+
 
 # Prod container
 FROM ubuntu:latest
@@ -36,3 +37,4 @@ WORKDIR /srv/worker
 
 
 CMD ["/srv/worker/main"]
+
