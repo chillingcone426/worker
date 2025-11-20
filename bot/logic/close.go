@@ -341,21 +341,33 @@ func sendCloseEmbed(ctx context.Context, cmd registry.CommandContext, errorConte
 
 		statsd.Client.IncrementKey(statsd.KeyDirectMessage)
 
-		row1 := []CloseEmbedElement{
-    TranscriptLinkElement(settings.StoreTranscripts),
+		row1 := []CloseEmbedElement{}
+
+transcriptElem := TranscriptLinkElement(settings.StoreTranscripts)
+if transcriptElem != nil {
+    row1 = append(row1, transcriptElem)
 }
 
 if ticket.IsThread && ticket.ChannelId != nil {
-    row1 = append(row1, ThreadLinkElement(true))
+    threadElem := ThreadLinkElement(true)
+    if threadElem != nil {
+        row1 = append(row1, threadElem)
+    }
 }
 
-row2 := []CloseEmbedElement{
-    FeedbackRowElement(feedbackEnabled && hasSentMessage && permLevel == permission.Everyone),
+row2 := []CloseEmbedElement{}
+
+feedbackElem := FeedbackRowElement(feedbackEnabled && hasSentMessage && permLevel == permission.Everyone)
+if feedbackElem != nil {
+    row2 = append(row2, feedbackElem)
 }
 
-componentBuilders := [][]CloseEmbedElement{
-    row1,
-    row2,
+componentBuilders := [][]CloseEmbedElement{}
+if len(row1) > 0 {
+    componentBuilders = append(componentBuilders, row1)
+}
+if len(row2) > 0 {
+    componentBuilders = append(componentBuilders, row2)
 }
 		closeEmbed, closeComponents := BuildCloseEmbed(ctx, cmd.Worker(), ticket, member.User.Id, reason, nil, componentBuilders)
 		closeEmbed.SetAuthor(guild.Name, "", fmt.Sprintf("https://cdn.discordapp.com/icons/%d/%s.png", guild.Id, guild.Icon))
