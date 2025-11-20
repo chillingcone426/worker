@@ -87,36 +87,25 @@ func ViewFeedbackElement(condition bool) CloseEmbedElement {
 }
 
 func FeedbackRowElement(condition bool) CloseEmbedElement {
-	if !condition {
-		return NoopElement()
-	}
+    if !condition {
+        // Return NO BUTTONS
+        return NoopElement()
+    }
 
-	return func(worker *worker.Context, ticket database.Ticket) []component.Component {
-		buttons := make([]component.Component, 5)
+    return func(worker *worker.Context, ticket database.Ticket) []component.Component {
+        // Always return a VALID custom_id
+        customId := fmt.Sprintf("feedback:%d", ticket.Id)
 
-		for i := 1; i <= 5; i++ {
-			var style component.ButtonStyle
-			if i <= 2 {
-				style = component.ButtonStyleDanger
-			} else if i == 3 {
-				style = component.ButtonStylePrimary
-			} else {
-				style = component.ButtonStyleSuccess
-			}
-
-			buttons[i-1] = component.BuildButton(component.Button{
-				Label:    strconv.Itoa(i),
-				CustomId: fmt.Sprintf("rate_%d_%d_%d", ticket.GuildId, ticket.Id, i),
-				Style:    style,
-				Emoji: &emoji.Emoji{
-					Name: "⭐",
-				},
-			})
-		}
-
-		return buttons
-	}
+        return []component.Component{
+            component.BuildButton(component.Button{
+                Label:    "Rate Ticket",
+                Style:    component.ButtonStylePrimary,
+                CustomId: utils.Ptr(customId),
+            }),
+        }
+    }
 }
+
 
 func BuildCloseEmbed(
 	ctx context.Context,
