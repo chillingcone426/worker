@@ -8,7 +8,6 @@ import (
 	"github.com/TicketsBot/common/permission"
 	"github.com/TicketsBot/common/sentry"
 	"github.com/TicketsBot/database"
-	"github.com/rxdn/gdl/objects/channel/component"
 	"github.com/TicketsBot/worker/bot/command/registry"
 	"github.com/TicketsBot/worker/bot/customisation"
 	"github.com/TicketsBot/worker/bot/dbclient"
@@ -25,30 +24,10 @@ import (
 	"time"
 )
 
-func SafeTranscriptButton(hasTranscript bool, ticket database.Ticket) component.Component {
-	if !hasTranscript {
-		return nil
-	}
-
-	return component.BuildButton(component.Button{
-		Label: "View Transcript",
-		Style: component.ButtonStyleLink,
-		Url:   utils.Ptr(fmt.Sprintf("https://ticketsbot.net/transcript/%d/%d", ticket.GuildId, ticket.Id)),
-	})
-}
-
-// FORCE ThreadLinkElement to only return a LINK button
-func SafeThreadButton(ticket database.Ticket) component.Component {
-	if !ticket.IsThread || ticket.ChannelId == nil {
-		return nil
-	}
-
-	return component.BuildButton(component.Button{
-		Label: "View Thread",
-		Style: component.ButtonStyleLink,
-		Url:   utils.Ptr(fmt.Sprintf("https://discord.com/channels/%d/%d", ticket.GuildId, *ticket.ChannelId)),
-	})
-}
+func TranscriptLinkElement(condition bool) CloseEmbedElement
+func ThreadLinkElement(condition bool) CloseEmbedElement
+func FeedbackRowElement(condition bool) CloseEmbedElement
+func NoopElement() CloseEmbedElement
 
 func CloseTicket(ctx context.Context, cmd registry.CommandContext, reason *string, bypassPermissionCheck bool) {
 	var success bool
@@ -275,18 +254,17 @@ func sendCloseEmbed(ctx context.Context, cmd registry.CommandContext, errorConte
 	}
 
 	if archiveChannelExists && archiveChannelId != nil {
-    // ---- ROW 1: Transcript + Thread buttons ----
-    row1 := []CloseEmbedElement{
-        TranscriptLinkElement(settings.StoreTranscripts),
-    }
+   row1 := []CloseEmbedElement{
+    TranscriptLinkElement(settings.StoreTranscripts),
+}
 
-    if ticket.IsThread && ticket.ChannelId != nil {
-        row1 = append(row1, ThreadLinkElement(true))
-    }
+if ticket.IsThread && ticket.ChannelId != nil {
+    row1 = append(row1, ThreadLinkElement(true))
+}
 
-    componentBuilders := [][]CloseEmbedElement{
-        row1,
-    }
+componentBuilders := [][]CloseEmbedElement{
+    row1,
+}
 
     closeEmbed, closeComponents := BuildCloseEmbed(
         ctx,
@@ -367,8 +345,7 @@ func sendCloseEmbed(ctx context.Context, cmd registry.CommandContext, errorConte
 
 		statsd.Client.IncrementKey(statsd.KeyDirectMessage)
 
-		// Row 1: only link buttons
-row1 := []CloseEmbedElement{
+		row1 := []CloseEmbedElement{
     TranscriptLinkElement(settings.StoreTranscripts),
 }
 
@@ -376,7 +353,6 @@ if ticket.IsThread && ticket.ChannelId != nil {
     row1 = append(row1, ThreadLinkElement(true))
 }
 
-// Row 2: only normal buttons
 row2 := []CloseEmbedElement{
     FeedbackRowElement(feedbackEnabled && hasSentMessage && permLevel == permission.Everyone),
 }
@@ -385,6 +361,7 @@ componentBuilders := [][]CloseEmbedElement{
     row1,
     row2,
 }
+
 		closeEmbed, closeComponents := BuildCloseEmbed(ctx, cmd.Worker(), ticket, member.User.Id, reason, nil, componentBuilders)
 		closeEmbed.SetAuthor(guild.Name, "", fmt.Sprintf("https://cdn.discordapp.com/icons/%d/%s.png", guild.Id, guild.Icon))
 
