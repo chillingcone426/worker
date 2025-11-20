@@ -271,23 +271,11 @@ if ticket.IsThread && ticket.ChannelId != nil {
     }
 }
 
-// ----- ROW 2: custom_id buttons only -----
-row2 := []CloseEmbedElement{}
-
-if feedbackEnabled && hasSentMessage && permLevel == permission.Everyone {
-    if elem := FeedbackRowElement(true); elem != nil {
-        row2 = append(row2, elem)
-    }
-}
-
-// Build rows (ONLY include non-empty rows)
+// archive embed only uses ROW 1
 componentBuilders := [][]CloseEmbedElement{}
 
 if len(row1) > 0 {
     componentBuilders = append(componentBuilders, row1)
-}
-if len(row2) > 0 {
-    componentBuilders = append(componentBuilders, row2)
 }
 
     closeEmbed, closeComponents := BuildCloseEmbed(
