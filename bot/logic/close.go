@@ -24,11 +24,6 @@ import (
 	"time"
 )
 
-func TranscriptLinkElement(condition bool) CloseEmbedElement
-func ThreadLinkElement(condition bool) CloseEmbedElement
-func FeedbackRowElement(condition bool) CloseEmbedElement
-func NoopElement() CloseEmbedElement
-
 func CloseTicket(ctx context.Context, cmd registry.CommandContext, reason *string, bypassPermissionCheck bool) {
 	var success bool
 	errorContext := cmd.ToErrorContext()
