@@ -1,5 +1,5 @@
 # Build container
-FROM golang:1.22 AS builder
+FROM golang:1.17 AS builder
 
 RUN go version
 
@@ -33,5 +33,6 @@ RUN chmod +x /srv/worker/main
 RUN useradd -m container
 USER container
 WORKDIR /srv/worker
+
 
 CMD ["/srv/worker/main"]
