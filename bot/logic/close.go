@@ -249,18 +249,24 @@ func sendCloseEmbed(ctx context.Context, cmd registry.CommandContext, errorConte
 	}
 
 	if archiveChannelExists && archiveChannelId != nil {
-    builders := []CloseEmbedElement{
-        TranscriptLinkElement(settings.StoreTranscripts),
-    }
+   builders := []CloseEmbedElement{}
 
-    if ticket.IsThread && ticket.ChannelId != nil {
-        threadElem := ThreadLinkElement(true)
+transcriptElem := TranscriptLinkElement(settings.StoreTranscripts)
+if transcriptElem != nil {
+    builders = append(builders, transcriptElem)
+}
+
+if ticket.IsThread && ticket.ChannelId != nil {
+    threadElem := ThreadLinkElement(true)
+    if threadElem != nil {
         builders = append(builders, threadElem)
     }
+}
 
-    componentBuilders := [][]CloseEmbedElement{
-        builders,
-    }
+componentBuilders := [][]CloseEmbedElement{}
+if len(builders) > 0 {
+    componentBuilders = append(componentBuilders, builders)
+}
 
     closeEmbed, closeComponents := BuildCloseEmbed(
         ctx,
