@@ -341,16 +341,22 @@ func sendCloseEmbed(ctx context.Context, cmd registry.CommandContext, errorConte
 
 		statsd.Client.IncrementKey(statsd.KeyDirectMessage)
 
-		componentBuilders := [][]CloseEmbedElement{
-			{
-				TranscriptLinkElement(settings.StoreTranscripts),
-				ThreadLinkElement(ticket.IsThread && ticket.ChannelId != nil),
-			},
-			{
-				FeedbackRowElement(feedbackEnabled && hasSentMessage && permLevel == permission.Everyone),
-			},
-		}
+		row1 := []CloseEmbedElement{
+    TranscriptLinkElement(settings.StoreTranscripts),
+}
 
+if ticket.IsThread && ticket.ChannelId != nil {
+    row1 = append(row1, ThreadLinkElement(true))
+}
+
+row2 := []CloseEmbedElement{
+    FeedbackRowElement(feedbackEnabled && hasSentMessage && permLevel == permission.Everyone),
+}
+
+componentBuilders := [][]CloseEmbedElement{
+    row1,
+    row2,
+}
 		closeEmbed, closeComponents := BuildCloseEmbed(ctx, cmd.Worker(), ticket, member.User.Id, reason, nil, componentBuilders)
 		closeEmbed.SetAuthor(guild.Name, "", fmt.Sprintf("https://cdn.discordapp.com/icons/%d/%s.png", guild.Id, guild.Icon))
 
