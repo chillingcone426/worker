@@ -256,16 +256,38 @@ if transcriptElem != nil {
     builders = append(builders, transcriptElem)
 }
 
+// ----- ROW 1: link buttons only -----
+row1 := []CloseEmbedElement{}
+
+// transcript link (always a link button)
+if elem := TranscriptLinkElement(settings.StoreTranscripts); elem != nil {
+    row1 = append(row1, elem)
+}
+
+// thread link (also a link button)
 if ticket.IsThread && ticket.ChannelId != nil {
-    threadElem := ThreadLinkElement(true)
-    if threadElem != nil {
-        builders = append(builders, threadElem)
+    if elem := ThreadLinkElement(true); elem != nil {
+        row1 = append(row1, elem)
     }
 }
 
+// ----- ROW 2: custom_id buttons only -----
+row2 := []CloseEmbedElement{}
+
+if feedbackEnabled && hasSentMessage && permLevel == permission.Everyone {
+    if elem := FeedbackRowElement(true); elem != nil {
+        row2 = append(row2, elem)
+    }
+}
+
+// Build rows (ONLY include non-empty rows)
 componentBuilders := [][]CloseEmbedElement{}
-if len(builders) > 0 {
-    componentBuilders = append(componentBuilders, builders)
+
+if len(row1) > 0 {
+    componentBuilders = append(componentBuilders, row1)
+}
+if len(row2) > 0 {
+    componentBuilders = append(componentBuilders, row2)
 }
 
     closeEmbed, closeComponents := BuildCloseEmbed(
